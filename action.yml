@@ -1,0 +1,22 @@
+name: Docker Remote Deploy
+author: rynocouse
+description: Run docker container on remote server via ssh.
+inputs:
+    remote_docker_host:
+        description: The address of the remote docker host.
+    ssh_private_key:
+        description: Private SSH Key to access Docker host.
+    action:
+        description: deploy or remove.
+    project_name:
+        description: Name of the docker project eg the -p flag in docker compose.
+    stack_file_name:
+        description: Docker compose file name default docker-compose.yml.
+        required: false
+
+runs:
+    using: node12
+    main: 'main.js'
+branding:
+    icon: upload
+    color: orange
