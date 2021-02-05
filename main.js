@@ -15,15 +15,23 @@ function run(cmd, options = {}) {
     if (!options.hide) {
         console.log(`$ ${cmd}`);
     }
-    return execSync(cmd, {
-        shell: '/bin/bash',
-        encoding: 'utf-8',
-        env: {
-            ...process.env,
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-        },
-    });
+    try {
+        return execSync(cmd, {
+            shell: '/bin/bash',
+            encoding: 'utf-8',
+            env: {
+                ...process.env,
+                AWS_ACCESS_KEY_ID,
+                AWS_SECRET_ACCESS_KEY,
+            },
+        });
+    } catch (error) {
+        core.setFailed(`Deploy failed with error: ${error.message}`);
+        console.log(error.status);
+        console.log(error.message); // Holds the message you typically want.
+        console.log(error.stderr.toString()); // Holds the stderr output. Use `.toString()`.
+        console.log(error.stdout.toString()); // Holds the stdout output. Use `.toString()`.
+    }
 }
 
 run(`$(aws ecr get-login --no-include-email --region ${awsRegion})`);
@@ -42,7 +50,7 @@ switch (action) {
     case 'deploy':
         run(`echo "Pull Built Images..."`);
         run(
-            `docker-compose --log-level debug --host ssh://${remote_docker_host} -f ${stack_file_name} pull --ignore-pull-failures`
+            `docker-compose --log-level debug --host ssh://${remote_docker_host} -f ${stack_file_name} pull`
         );
         run(`echo "Start ${project_name} Services..."`);
         run(
